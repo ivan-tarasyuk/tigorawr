@@ -1,14 +1,15 @@
 from typing import Optional, List, Tuple, Union
 import spotipy as sp
 
-from ymusic_spotify import utils
 from ymusic_spotify.config import (ACTIONS, CLIENT_ID, CLIENT_SECRET, FOUND_IDS, PROCESSED, NOT_ADDED,
-                                   REDIRECT_URI, RESULTS, SCOPE, TIGORAWR)
+                                   REDIRECT_URI, RESULTS, SCOPE, TIGORAWR, STATS_DIR)
 from ymusic_spotify.exceptions import TrackNotFound, YMException
+from ymusic_spotify.io import write_txt
 from ymusic_spotify.playlist import (YMPlaylistURL, YMPlaylistCreds, YMPlaylistTXT,
                                      YMPlaylistJSON, YMPlaylistHTML, YMPlaylistBase)
 from ymusic_spotify.search import SearchEngine
 from ymusic_spotify.track import Track
+from ymusic_spotify.validation import validate_actions_key
 
 
 class PlaylistProcessor:
@@ -88,7 +89,7 @@ class PlaylistProcessor:
         for i in range(5):
             if i != key:
                 print(self._format_actions_line(i, tracks[i] if key != 3 else None))
-        new_key = utils.validate_actions_key(input(self._format_actions_line(key, key_type='ANSW')), range_limit=key)
+        new_key = validate_actions_key(input(self._format_actions_line(key, key_type='ANSW')), range_limit=key)
         if key == 3:
             self.search_engine.default_action = new_key
         return self._choose_action(new_key, tracks)
@@ -100,7 +101,6 @@ class PlaylistProcessor:
         best_score = 0
         try:
             spotify_results = self.search_engine.search(track)
-            # print(f'[WORK] {track}')
             best_score, best_match, first_result = self.search_engine.get_best_match(track, spotify_results)
             if best_score < self.search_engine.req_score:
                 action = self._choose_action(self.search_engine.default_action,
@@ -171,11 +171,11 @@ class PlaylistProcessor:
         if not input('\nSave stats to TXT files? [Y/N] ').upper() == 'Y':
             return None
         try:
-            utils.write_file(FOUND_IDS, '\n'.join(found_ids))
-            utils.write_file(PROCESSED, '\n'.join([f'{ym_track}\n{ACTIONS[action]}\n{spotify_track or "N/A"}\n'
-                                                   for ym_track, action, spotify_track in processed]))
-            utils.write_file(NOT_ADDED, '\n'.join([str(ym_track) for ym_track in not_added]))
-            print(f"\nStats has been saved to directory '{RESULTS}'")
+            write_txt(FOUND_IDS, '\n'.join(found_ids))
+            write_txt(PROCESSED, '\n'.join([f'{ym_track}\n{ACTIONS[action]}\n{spotify_track or "N/A"}\n'
+                                            for ym_track, action, spotify_track in processed]))
+            write_txt(NOT_ADDED, '\n'.join([str(ym_track) for ym_track in not_added]))
+            print(f"\nStats has been saved to directory '{STATS_DIR}'")
         except Exception as e:
             print(e)
         return None

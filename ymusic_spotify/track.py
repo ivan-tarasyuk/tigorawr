@@ -1,17 +1,18 @@
 import re
 from typing import List, Optional, Callable
 
-from ymusic_spotify import utils
 from ymusic_spotify.config import (ARTIST_SEP, ENTITY_SEP, TRANSLATION,
                                    FORBIDDEN_WORDS, FORBIDDEN_TYPES_PATTERN, FORBIDDEN_WORDS_PATTERN)
 from ymusic_spotify.exceptions import InvalidDataStructure
+from ymusic_spotify.matching import match_str, match_set
+from ymusic_spotify.validation import validate_list_items, validate_str
 
 
 class Track:
     """Class for creating a track instance after validation"""
     def __new__(cls, artists: List[str], title: str, *args, **kwargs):
-        __valid_artists = utils.validate_list_items(artists)
-        __valid_title = utils.validate_str(title)
+        __valid_artists = validate_list_items(artists)
+        __valid_title = validate_str(title)
         if not __valid_artists or not __valid_title:
             return None
 
@@ -23,8 +24,8 @@ class Track:
     def __init__(self, artists: List[str], title: str, album: Optional[str] = None, _id: Optional[str] = None):
         self.artists = self.__valid_artists
         self.title = self.__valid_track_title
-        self.album = utils.validate_str(album)
-        self.id = utils.validate_str(_id)
+        self.album = validate_str(album)
+        self.id = validate_str(_id)
         delattr(self, f'_{self.__class__.__name__}__valid_artists')
         delattr(self, f'_{self.__class__.__name__}__valid_track_title')
 
@@ -111,13 +112,13 @@ class Track:
                                     lambda: self.album.lower())
 
     def _match_title(self, other: 'Track') -> int:
-        return utils.match_str(self.matching_title, other.matching_title, a=8, b=2, c=0)
+        return match_str(self.matching_title, other.matching_title, a=8, b=2, c=0)
 
     def _match_artists(self, other: 'Track') -> int:
-        return utils.match_set(self.matching_artists, other.matching_artists, a=4, b=1)
+        return match_set(self.matching_artists, other.matching_artists, a=4, b=1)
 
     def _match_album(self, other: 'Track') -> int:
-        return utils.match_str(self.matching_album, other.matching_album, a=4, b=3, c=2)
+        return match_str(self.matching_album, other.matching_album, a=4, b=3, c=2)
 
     def rate_match(self, other: 'Track') -> int:
         """Return overall similarity score between two tracks"""

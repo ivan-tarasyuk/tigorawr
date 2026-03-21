@@ -6,12 +6,13 @@
 
 ## Overview
 This application extracts playlist from Yandex Music and creates it on Spotify. It supports multiple input formats, track matching with configurable parameters, and detailed statistics export.
+
 **Note:** Requires Spotify Developer API credentials (see [Configuration](#configuration))
 
 ---
 
 ## Features
-- Import playlists from Yandex Music (username + playlist ID, URL, HTML, JSON, TXT )
+- Import playlists from Yandex Music (credentials, URL, HTML, JSON, TXT)
 - Track matching with configurable scoring system
 - Interactive handling of low-confidence matches
 - Create Spotify playlists with matched tracks
@@ -28,8 +29,8 @@ This application extracts playlist from Yandex Music and creates it on Spotify. 
 
 ## Installation
 ```bash
-git clone https://github.com/yourusername/tigorgorawr.git
-cd tigorgorawr
+git clone https://github.com/ivan-tarasyuk/tigorawr
+cd tigorawr
 pip install -r requirements.txt
 ```
 **Required packages:** `spotipy>=2.23.0`, `requests>=2.31.0`, `python-dotenv>=1.2.2`
@@ -52,25 +53,28 @@ REDIRECT_URI = 'http://localhost:8888/callback'
 ## Input Methods
 The application accepts one of five possible input formats when prompted:
 - **Username and Playlist ID** - Format: `tigorawr 666`
-- **Playlist URL** - Direct link: `https://music.yandex.ru/users/tigorawr/playlists/666`
-- **Playlist HTML** - Iframe embed code from Yandex Music (the simplest way)
-- **Path to TXT File** - TXT file with tracks in format: `Artist1; Artist2; ... --- Track` or `Artist1; Artist2; ... --- Track --- Album`
-- **Path to JSON File** - JSON file format downloaded from: `https://music.yandex.ru/handlers/playlist.jsx?owner=tigorawr&kinds=666`
+- **Playlist URL** - Direct link in the format:  
+`https://music.yandex.ru/users/tigorawr/playlists/666`
+- **Playlist HTML** - Iframe embed code from Yandex Music (this is the simplest way)
+- **Path to TXT file** - TXT file with tracks in the formats:  
+`Artist1; Artist2; ... --- Track` or `Artist1; Artist2; ... --- Track --- Album`
+- **Path to JSON file** - JSON file downloaded from link in the format:
+`https://music.yandex.ru/handlers/playlist.jsx?owner=tigorawr&kinds=666`
 
 ---
 
 ## Parameters
-**`req_score`** (1-16, default: 5) - Minimum matching score for automatic track addition. Lower values (5-7) are faster but less strict, higher values (13-16) ensure exact matches. Recommended: 10-12 for balanced results.
+- **`req_score`** (1-16, default: 5) - Minimum matching score for automatic track addition. Lower values (5-7) are faster but less strict, higher values (13-16) ensure exact matches. Recommended: 10-12 for balanced results.
 
-**`limit`** (1-25, default: 20) - Number of Spotify search results to evaluate per track. Lower is faster, higher is more thorough.
+- **`limit`** (1-25, default: 20) - Number of Spotify search results to evaluate per track. Lower is faster, higher is more thorough.
 
-**`attempts`** (default: 1) - Number of search retries per track.
+- **`attempts`** (default: 1) - Number of search retries per track.
 
-**`default_action`** (default: 4) - What to do when match score is below threshold:
-- `0` - Skip track
-- `1` - Add best match
-- `2` - Add first result  
-- `4` - Ask user to confirm each track
+- **`default_action`** (default: 4) - What to do when match score is below threshold:
+  - `0` - Skip track
+  - `1` - Add best match
+  - `2` - Add first result  
+  - `4` - Ask user to confirm each track
 
 ---
 
@@ -84,18 +88,9 @@ In addition, the application can export matching results into four separate TXT 
 
 ---
 
-## Project Structure
+## Usage
+```bash
+python tigorawr.py
 ```
-tigorawr/
-├── .env                      # Spotify credentials (configure this!)
-├── app.py                    # Entry point
-├── requirements.txt          # Dependencies
-└── ymusic_spotify/
-    ├── config.py             # Constants
-    ├── processor.py          # Main logic
-    ├── playlist.py           # Playlist parsers
-    ├── search.py             # Matching engine
-    ├── track.py              # Track model
-    └── utils.py              # Helpers
-```
+
 ---
